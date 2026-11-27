@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>ランキング管理係</title>
 <meta name="description" content="ゲーム会社の夜勤のランキング管理係。朝6時の更新までに、届いた登録をマニュアルと見比べて「掲載」か「削除」か。見逃した不正は、翌朝の問い合わせで返ってくる。">
 <meta name="theme-color" content="#33604f">
@@ -33,7 +33,8 @@
 :root{color-scheme:light dark;--w1:light-dark(#c7d1dd,#353b46);--w2:light-dark(#a7b5c6,#252a32);--w3:light-dark(#93a3b7,#1b1f26);--bg:light-dark(#eef0f3,#121418);--panel:light-dark(#ffffff,#1e2127);--sub:light-dark(#f4f6f9,#262a31);--ink:light-dark(#1c2230,#e9ebf0);--dim:light-dark(#687083,#9ca3b2);--line:light-dark(#d8dce4,#363b46);--ai:#22385f;--aiT:light-dark(#22385f,#a9c0ea);--bub:light-dark(#e6ecf7,#263248);--ok:#23814e;--ng:#d2492f;--ngT:light-dark(#c13f26,#ff9d86);--ng2:light-dark(#fdebe7,#3a2421);--hl:light-dark(#fff1bd,#41391f)}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
-html,body{margin:0;height:100%}
+html,body{margin:0;height:100%;touch-action:manipulation}
+button,a,.win,.view{touch-action:manipulation}
 body{background:var(--bg);color:var(--ink);font:15px/1.55 "M PLUS 2",system-ui,sans-serif;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 button{font:inherit;color:inherit;cursor:pointer}
 button:focus-visible{outline:3px solid #5b8def;outline-offset:2px}
@@ -507,14 +508,14 @@ function makeDay(d){
   const R=rng(G.seed+d*77),ri=(a,b)=>a+Math.floor(R()*(b-a+1)),pick=a=>a[Math.floor(R()*a.length)];
   const names=NAMES.slice().sort(()=>R()-.5);let ni=0;
   const hex=()=>Array.from({length:4},()=>'0123456789ABCDEF'[ri(0,15)]).join('');
-  const grpLine=hex();
+  const tFirst=R()<.5;const grpLine=hex();
   const endAt=(24*60+shiftStart(d))*60-60;const time=()=>{let s;do{s=ri(7*3600,endAt)}while(s>=26*3600&&s<27*3600);return s};
   const okScore=pt=>10*ri(Math.floor(pt*2*.3),Math.floor(pt*2*.85));
   const list=DAYS[d-1].mix.split(' ').map(tok=>{
     const pt=R()<.75?60:ri(30,59);
     const e={name:names[ni++],pt,score:okScore(pt),line:hex(),at:time(),bad:null};
-    if(tok==='t1'){e.at=6*3600+ri(60,600);e.tut=1;e.pt=60;e.score=640}
-    if(tok==='t2'){e.at=6*3600+ri(900,1500);e.tut=2;e.pt=60;e.score=1350;e.bad='over'}
+    if(tok==='t1'){e.at=6*3600+(tFirst?ri(60,600):ri(900,1500));e.tut=1;e.pt=60;e.score=10*ri(25,110)}
+    if(tok==='t2'){e.at=6*3600+(tFirst?ri(900,1500):ri(60,600));e.tut=2;e.pt=60;e.score=pick([1210,1250,1300,1350,1480,1990,2400,9990]);e.bad='over'}
     if(tok==='perfect'){e.pt=60;e.score=1200}
     if(tok==='short'){e.pt=ri(6,14);e.score=10*ri(Math.ceil(e.pt*.8),e.pt*2)}
     if(tok==='over'){e.pt=60;e.score=pick([1250,1300,2400,9990,99990,1210]);e.bad='over'}
@@ -582,7 +583,7 @@ function work(){
   phase='work';secs=left=DAYS[G.day-1].secs;cur=0;hlLine=null;warned=false;
   $('man').innerHTML=manual(G.day);$('chatLog').innerHTML=talk(G.day).map(bub).join('');$('dateL').textContent=G.day+'日目';
   show('vDesk');focusWin('wTool');listMode(false);closeModal();
-  if(G.day===1)say('1件目。マニュアルの「削除する登録」と見比べて。スコア640点、60秒…問題なさそうなら「掲載」。',true);
+  if(G.day===1)say('1件目。マニュアルの「削除する登録」と見比べて。どれにも当てはまらなければ「掲載」、当てはまったら「削除」して理由を選んでね。',true);
   else say('じゃあ、よろしく。わからなくなったら、下のタスクバーからマニュアルを開いてね。');
   let last=performance.now();clearInterval(tick);
   tick=setInterval(()=>{const n=performance.now();left-=(n-last)/1000;last=n;
@@ -599,8 +600,11 @@ function judge(v,reason){
   if(phase!=='work')return;const e=L[cur];
   e.j=v;e.r=reason||null;closeModal();
   const st=$('stamp');st.textContent=v==='keep'?'掲載':'削除';st.className='stamp on '+v;
-  if(e.tut===1){if(v==='keep')say('そう、それでいい。次の2件目は、スコアをよく見て。',true);else{e.j='keep';e.r=null;say('640点で60秒なら問題ないよ。どの削除条件にも当てはまらないから掲載。直しておいたよ。次の2件目は、スコアをよく見て。',true)}}
-  if(e.tut===2){if(v==='del'&&reason==='over')say('正解。最高点は1200点だから、1350点はありえない。あとは任せた！');else{e.j='del';e.r='over';say('2件目は1350点。最高点の1200点をこえてるから「削除」で、理由は「最高点をこえている」。直しておいたよ。あとは任せた！')}}
+  if(e.tut&&!e.tutDone){
+    e.tutDone=true;const left=L.some(x=>x.tut&&!x.tutDone),tail=left?'次の2件目も、同じように見てみて。':'あとは任せた！';
+    if(e.tut===1){if(v==='keep')say('そう、それでいい。'+e.score+'点で'+e.pt+'秒なら、どの削除条件にも当てはまらない。'+tail,left);else{e.j='keep';e.r=null;say(e.score+'点で'+e.pt+'秒なら問題ないよ。どの削除条件にも当てはまらないから「掲載」。直しておいたよ。'+tail,left)}}
+    else{if(v==='del'&&reason==='over')say('正解。最高点は1200点だから、'+e.score+'点はありえない。'+tail,left);else{e.j='del';e.r='over';say('これは'+e.score+'点。最高点の1200点をこえてるから「削除」で、理由は「最高点をこえている」。直しておいたよ。'+tail,left)}}
+  }
   setTimeout(()=>{st.classList.remove('on');const n=nextOpen(cur);if(n>=0)cur=n;render()},260);
   status();
 }
@@ -848,6 +852,7 @@ $('gBack').onclick=()=>{
 };
 
 $('jChat').innerHTML=bub('はじめまして、主任の池田です。今夜から、夜勤のランキング管理をお願いします。')+bub('仕事は、朝6時のランキング更新までに、届いた登録をチェックして不正なものを消すこと。やり方は、PCの前で教えるね。');
+document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
 show('vTitle');
 $('gTitle').onclick=()=>{newGame();phase='jirei';show('vJirei')};
 $('gJirei').onclick=night;$('gNight').onclick=work;
