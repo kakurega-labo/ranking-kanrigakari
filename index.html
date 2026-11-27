@@ -30,7 +30,7 @@
    PICTURE: 登録票の窓と、掲載／削除。朝は自分のスマホでアプリのランキングを見る。
    COLOUR and TYPE: 会社の藍、デスクトップの壁紙は藍の濃淡、窓は白（夜は濃い灰）。掲載は緑、削除は朱。M PLUS 2、アプリ画面だけ DotGothic16。
    LAYOUT: どの画面も1画面。主なボタンは下の帯に固定。作業画面は広いと窓3枚を並べ、狭いと1枚ずつタスクバーで切りかえ。 */
-:root{color-scheme:light dark;--bg:light-dark(#eef0f3,#121418);--panel:light-dark(#ffffff,#1e2127);--sub:light-dark(#f4f6f9,#262a31);--ink:light-dark(#1c2230,#e9ebf0);--dim:light-dark(#687083,#9ca3b2);--line:light-dark(#d8dce4,#363b46);--ai:#22385f;--aiT:light-dark(#22385f,#a9c0ea);--bub:light-dark(#e6ecf7,#263248);--ok:#23814e;--ng:#d2492f;--ngT:light-dark(#c13f26,#ff9d86);--ng2:light-dark(#fdebe7,#3a2421);--hl:light-dark(#fff1bd,#41391f)}
+:root{color-scheme:light dark;--w1:light-dark(#c7d1dd,#353b46);--w2:light-dark(#a7b5c6,#252a32);--w3:light-dark(#93a3b7,#1b1f26);--bg:light-dark(#eef0f3,#121418);--panel:light-dark(#ffffff,#1e2127);--sub:light-dark(#f4f6f9,#262a31);--ink:light-dark(#1c2230,#e9ebf0);--dim:light-dark(#687083,#9ca3b2);--line:light-dark(#d8dce4,#363b46);--ai:#22385f;--aiT:light-dark(#22385f,#a9c0ea);--bub:light-dark(#e6ecf7,#263248);--ok:#23814e;--ng:#d2492f;--ngT:light-dark(#c13f26,#ff9d86);--ng2:light-dark(#fdebe7,#3a2421);--hl:light-dark(#fff1bd,#41391f)}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
 html,body{margin:0;height:100%}
@@ -72,7 +72,7 @@ button:focus-visible{outline:3px solid #5b8def;outline-offset:2px}
 .nightHead{font-size:13px;color:var(--dim);margin:0}
 .nightTtl{font-size:24px;margin:2px 0 14px}
 /* デスクトップ */
-#vDesk{flex-direction:column;background:linear-gradient(160deg,#2b4675,#162845 60%,#101c33)}
+#vDesk{flex-direction:column;background:linear-gradient(160deg,var(--w1),var(--w2) 60%,var(--w3))}
 .wall{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);grid-template-rows:minmax(0,1.2fr) minmax(0,1fr);gap:12px;padding:12px}
 .win{background:var(--panel);border-radius:8px;box-shadow:0 10px 30px #0006;display:flex;flex-direction:column;overflow:hidden;position:relative;min-height:0}
 #wTool{grid-row:1/3}
@@ -81,6 +81,21 @@ button:focus-visible{outline:3px solid #5b8def;outline-offset:2px}
 .tb .ic.m{background:#c0392b}.tb .ic.c{background:#23814e}
 .tb .ctl{margin-left:auto;display:flex;gap:14px;color:var(--dim)}
 .tb .ctl svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.3}
+.tb{transition:background .15s,color .15s}
+#vDesk .win:not(.front) .tb{color:var(--dim)}
+#vDesk .win.front .tb,#vGame .win .tb{background:var(--ai);color:#fff;border-color:var(--ai)}
+#vDesk .win.front,#vGame .win{box-shadow:0 0 0 2px light-dark(#22385f,#7f9fdc),0 12px 32px #0007}
+#vDesk .win.front .tb .ctl,#vGame .win .tb .ctl{color:#ffffffb3}
+#vDesk .win.flash{animation:wflash .6s ease-out}
+@keyframes wflash{0%{box-shadow:0 0 0 2px #8fb2ff,0 12px 32px #0007}40%{box-shadow:0 0 0 6px #8fb2ffcc,0 12px 32px #0007}100%{box-shadow:0 0 0 2px light-dark(#22385f,#7f9fdc),0 12px 32px #0007}}
+/* スクロールバー：細い角丸だけ（矢印・背景なし） */
+::-webkit-scrollbar{width:8px;height:8px;background:transparent}
+::-webkit-scrollbar-track,::-webkit-scrollbar-corner{background:transparent}
+::-webkit-scrollbar-button{display:none;width:0;height:0}
+::-webkit-scrollbar-thumb{background:light-dark(#1c223040,#e9ebf04d);border-radius:8px;border:2px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background-color:light-dark(#1c223073,#e9ebf080)}
+.plist::-webkit-scrollbar-thumb,.gl::-webkit-scrollbar-thumb{background-color:#ffffff40}
+@supports not selector(::-webkit-scrollbar){*{scrollbar-width:thin;scrollbar-color:light-dark(#1c223040,#e9ebf04d) transparent}}
 .bar{flex:none;display:flex;align-items:center;gap:14px;padding:6px 12px;border-bottom:1px solid var(--line);font-size:13px;color:var(--dim)}
 .bar b{color:var(--ink);font-size:16px;font-variant-numeric:tabular-nums}
 .bar b.low{color:var(--ngT)}
@@ -249,7 +264,7 @@ table.ls{width:100%;border-collapse:collapse;font-size:14px}
 @keyframes task{from{transform:translateY(100%)}}
 #vDesk.in .chat .msg{animation:none}
 /* 見回り（ミニゲーム かえるがかえる）：会社のPCの検証用の窓 */
-#vGame{flex-direction:column;background:linear-gradient(160deg,#2b4675,#162845 60%,#101c33)}
+#vGame{flex-direction:column;background:linear-gradient(160deg,var(--w1),var(--w2) 60%,var(--w3))}
 .gwall{display:flex!important;justify-content:center;align-items:stretch}
 .gwin{display:flex!important;flex:none;height:100%;aspect-ratio:10/16;max-width:100%}
 .gscreen{position:relative;flex:1;min-height:0;background:#1d5b55;overflow:hidden}
@@ -532,8 +547,9 @@ function say(t,stay){
     if(!stay)toastT=setTimeout(()=>ts.classList.remove('on'),6000);
   }
 }
-function focusWin(w){
-  front=w;for(const x of document.querySelectorAll('.win'))x.classList.toggle('front',x.id===w);
+function focusWin(w,flash){
+  front=w;for(const x of document.querySelectorAll('#vDesk .win'))x.classList.toggle('front',x.id===w);
+  if(flash&&!narrow()){const el=$(w);el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash')}
   for(const b of document.querySelectorAll('.tbtn[data-w]'))b.classList.toggle('on',b.dataset.w===w);
   if(w==='wChat'){$('tChat').classList.remove('unread');$('toast').classList.remove('on')}
 }
@@ -846,7 +862,8 @@ $('bPub').onclick=publish;
 $('sw').onclick=()=>listMode($('listView').hidden);
 $('cLine').onclick=()=>{const l=L[cur].line;hlLine=hlLine===l?null:l;render();if(hlLine)listMode(true)};
 $('list').addEventListener('click',ev=>{const tr=ev.target.closest('tr[data-i]');if(!tr)return;cur=+tr.dataset.i;listMode(false);render()});
-for(const b of document.querySelectorAll('.tbtn[data-w]'))b.onclick=()=>focusWin(b.dataset.w);
+for(const b of document.querySelectorAll('.tbtn[data-w]'))b.onclick=()=>focusWin(b.dataset.w,true);
+for(const x of document.querySelectorAll('#vDesk .win'))x.addEventListener('pointerdown',()=>{if(front!==x.id)focusWin(x.id)});
 $('toast').onclick=()=>focusWin('wChat');
 document.addEventListener('keydown',e=>{
   if(phase==='game'&&gm){if(e.key===' '||e.key==='ArrowUp'||e.key==='Enter'){e.preventDefault();if(gm.state==='title')return gCountdown();return gTap()}return}
